@@ -19,5 +19,18 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 # This finds the AddLLVM.cmake file in the llvm-project/build/lib/cmake/llvm directory
 include(AddLLVM)
 
+# The $MLIR_CMAKE_DIR variable is set in the MLIRConfig.cmake file
+list(APPEND CMAKE_MODULE_PATH "${MLIR_CMAKE_DIR}")
+
+# This finds the AddMLIR.cmake file in the llvm-project/build/lib/cmake/mlir directory
+include(AddMLIR)
+
+# The $LLVM_INCLUDE_DIRS and $MLIR_INCLUDE_DIRS variable is set in the LLVMConfig.cmake and MLIRConfig.cmake file respectively
+include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${MLIR_INCLUDE_DIRS})
+
+include_directories("./")
+
 # Add subdirectories to the build folder
 add_subdirectory(tests)
+add_subdirectory(tools)
