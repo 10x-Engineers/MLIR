@@ -12,3 +12,9 @@ find_package(MLIR REQUIRED CONFIG)
 
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+# This finds the AddLLVM.cmake file in the llvm-project/build/lib/cmake/llvm directory
+include(AddLLVM)
+
+# Add subdirectories to the build folder
+add_subdirectory(tests)
