@@ -20,3 +20,10 @@ cmake -G Ninja ../llvm              \
     -DLLVM_CCACHE_BUILD=ON          \
 ```
 > **Note:** Further Instructions to build MLIR can be found [here](https://mlir.llvm.org/getting_started/)
+
+## Build Tutorial
+```bash
+git clone https://github.com/10x-Engineers/MLIR.git
+
+bash _build.sh <path/to/llvm-project/build>
+```
