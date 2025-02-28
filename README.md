@@ -27,3 +27,8 @@ git clone https://github.com/10x-Engineers/MLIR.git
 
 bash _build.sh <path/to/llvm-project/build>
 ```
+
+## Test
+```bash
+cmake --build ./build --target check-mlir-tutorial
+```

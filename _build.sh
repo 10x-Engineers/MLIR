@@ -13,3 +13,5 @@ cmake -G Ninja .. \
     -DCMAKE_BUILD_TYPE=Debug
 
 popd
+
+cmake --build ./build --target check-mlir-tutorial
