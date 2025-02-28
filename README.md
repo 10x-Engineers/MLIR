@@ -28,7 +28,13 @@ git clone https://github.com/10x-Engineers/MLIR.git
 bash _build.sh <path/to/llvm-project/build>
 ```
 
+## Build `dummy-opt`
+```bash
+cmake --build ./build --target dummy-opt
+```
+> **Note:** The script `_build.sh` already builds `dummy-opt`
+
 ## Test
 ```bash
-cmake --build ./build --target check-mlir-tutorial
+cmake --build ./build --target check-mlir
 ```
