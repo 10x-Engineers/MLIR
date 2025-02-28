@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.20.0)
 # This defines the project name and the languages used
 project(mlir-tutorial LANGUAGES CXX C)
 
+# This is turned on to export the compiled commands in compile_commands.json file so that clangd can use it
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # This sets the C++ standard to use
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
