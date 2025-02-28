@@ -9,6 +9,6 @@ int main(int argc, char **argv) {
     mlir::registerAllDialects(registry);
 
     return mlir::asMainReturnCode(
-        mlir::MlirOptMain(argc, argv, "Tutorial Pass Driver", registry)
+        mlir::MlirOptMain(argc, argv, "Dummy Pass Driver", registry)
     );
 }
