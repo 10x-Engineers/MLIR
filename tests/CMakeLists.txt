@@ -15,7 +15,7 @@ set(MLIR_TUTORIAL_TEST_DEPENDS
 )
 
 # This function is defined in the AddLLVM.cmake file
-add_lit_testsuite(check-mlir-tutorial "Running the MLIR tutorial regression tests"
+add_lit_testsuite(check-mlir "Running the MLIR tutorial regression tests"
     ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${MLIR_TUTORIAL_TEST_DEPENDS}
 )

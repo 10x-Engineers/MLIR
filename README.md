@@ -36,5 +36,5 @@ cmake --build ./build --target dummy-opt
 
 ## Test
 ```bash
-cmake --build ./build --target check-mlir-tutorial
+cmake --build ./build --target check-mlir
 ```
