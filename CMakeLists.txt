@@ -34,3 +34,4 @@ include_directories("./")
 # Add subdirectories to the build folder
 add_subdirectory(tests)
 add_subdirectory(tools)
+add_subdirectory(lib)

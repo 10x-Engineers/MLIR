@@ -11,6 +11,7 @@ set(MLIR_TUTORIAL_TEST_DEPENDS
     FileCheck count not
     mlir-opt
     mlir-runner
+    dummy-opt
 )
 
 # This function is defined in the AddLLVM.cmake file
