@@ -3,8 +3,6 @@
 
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Pass/Pass.h"
-#include "llvm/ADT/StringRef.h"
-#include <string>
 
 namespace mlir {
 namespace dummy {
