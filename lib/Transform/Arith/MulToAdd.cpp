@@ -5,6 +5,7 @@
 #include "mlir/IR/Value.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cstdint>
 
 namespace mlir {
@@ -23,7 +24,6 @@ struct PowerOfTwoExpand : public OpRewritePattern<MulIOp> {
   LogicalResult matchAndRewrite(MulIOp op,
                                 PatternRewriter &rewriter) const override {
     // This pass runs on MulOp
-
     // get the LHS and RHS operands of the said MulOp
     Value lhs = op->getOperand(0);
     Value rhs = op->getOperand(1);
@@ -65,7 +65,29 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
       : OpRewritePattern<MulIOp>(context, /*benefit=*/1) {}
 
   LogicalResult matchAndRewrite(MulIOp op,
-                                PatternRewriter &rewritter) const override {
+                                PatternRewriter &rewriter) const override {
+    Value lhs = op.getOperand(0);
+    Value rhs = op.getOperand(1);
+    auto rhsDefiningOp = rhs.getDefiningOp<arith::ConstantIntOp>();
+    if (!rhsDefiningOp) {
+        return failure();
+    }
+
+    int64_t value = rhsDefiningOp.value();
+
+    // We are guaranteed `value` is not a power of two, because the greedy
+    // rewrite engine ensures the PowerOfTwoExpand pattern is run first, since
+    // it has higher benefit.
+
+    ConstantOp newConstant = rewriter.create<ConstantOp>(
+        rhsDefiningOp.getLoc(),
+        rewriter.getIntegerAttr(rhs.getType(), value - 1));
+    MulIOp newMul = rewriter.create<MulIOp>(op.getLoc(), lhs, newConstant);
+    AddIOp newAdd = rewriter.create<AddIOp>(op.getLoc(), newMul, lhs);
+
+    rewriter.replaceOp(op, newAdd);
+    rewriter.eraseOp(rhsDefiningOp);
+
     return success();
   }
 };
@@ -73,6 +95,7 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
 void MulToAddPass::runOnOperation() {
   mlir::RewritePatternSet patterns(&getContext());
   patterns.add<PowerOfTwoExpand>(&getContext());
+  patterns.add<PeelFromMul>(&getContext());
 
   (void)applyPatternsGreedily(getOperation(), std::move(patterns));
 }
