@@ -38,3 +38,8 @@ cmake --build ./build --target dummy-opt
 ```bash
 cmake --build ./build --target check-mlir
 ```
+
+## References
+- [MLIR Official Documentation](https://mlir.llvm.org/)
+- [j2kun/mlir-tutorial](https://github.com/j2kun/mlir-tutorial)
+- [vguerra/mlir-tutorial-cmake](https://github.com/vguerra/mlir-tutorial-cmake)
