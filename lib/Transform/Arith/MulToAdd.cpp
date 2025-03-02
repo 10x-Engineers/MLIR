@@ -10,9 +10,9 @@
 namespace mlir {
 namespace dummy {
 
-using arith::MulIOp;
 using arith::AddIOp;
 using arith::ConstantOp;
+using arith::MulIOp;
 
 // Replace y = C*x with y = C/2*x + C/2*x, when C is a power of 2, otherwise do
 // nothing.
@@ -30,12 +30,12 @@ struct PowerOfTwoExpand : public OpRewritePattern<MulIOp> {
     // canonicalization patterns ensure the constant is on the right, if there
     // is a constant See
     // https://mlir.llvm.org/docs/Canonicalization/#globally-applied-rules
-    
+
     // get the defining operation of the RHS operand, should be a ConstantIntOp
     auto rhsDefiningOp = rhs.getDefiningOp<arith::ConstantIntOp>();
     if (!rhsDefiningOp)
       return failure();
-    
+
     // get the value of the constant
     int64_t rhsValue = rhsDefiningOp.value();
 
@@ -43,7 +43,7 @@ struct PowerOfTwoExpand : public OpRewritePattern<MulIOp> {
 
     if (!is_power_of_two)
       return failure();
-    
+
     // create a new constant with the value of the constant divided by 2
     ConstantOp newConstant = rewriter.create<ConstantOp>(
         rhsDefiningOp.getLoc(),
@@ -69,7 +69,7 @@ struct PeelFromMul : public OpRewritePattern<MulIOp> {
     Value rhs = op.getOperand(1);
     auto rhsDefiningOp = rhs.getDefiningOp<arith::ConstantIntOp>();
     if (!rhsDefiningOp) {
-        return failure();
+      return failure();
     }
 
     int64_t value = rhsDefiningOp.value();
