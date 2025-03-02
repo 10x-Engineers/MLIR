@@ -4,7 +4,7 @@
 #include "lib/Transform/Affine/AffineFullUnroll.h"
 
 namespace mlir {
-namespace tutorial {
+namespace dummy {
 
 #define GEN_PASS_REGISTRATION
 #include "lib/Transform/Affine/Passes.h.inc"

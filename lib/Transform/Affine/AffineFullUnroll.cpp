@@ -28,5 +28,5 @@ struct AffineFullUnroll : impl::AffineFullUnrollBase<AffineFullUnroll> {
   }
 };
 
-} // namespace tutorial
+} // namespace dummy
 } // namespace mlir

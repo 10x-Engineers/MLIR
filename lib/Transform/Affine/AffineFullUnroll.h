@@ -9,7 +9,7 @@ namespace dummy {
 #define GEN_PASS_DECL_AFFINEFULLUNROLL
 #include "lib/Transform/Affine/Passes.h.inc"
 
-} // namespace tutorial
+} // namespace dummy
 } // namespace mlir
 
 #endif // LIB_TRANSFORM_AFFINE_AFFINEFULLUNROLL_H_
