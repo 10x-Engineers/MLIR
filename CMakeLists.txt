@@ -16,8 +16,14 @@ find_package(MLIR REQUIRED CONFIG)
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
+# Needed so that docs are generted in the build dir,
+# otherwise there is an attempt to create docs folder in /
+set(MLIR_BINARY_DIR ${CMAKE_BINARY_DIR})
+
 # This finds the AddLLVM.cmake file in the llvm-project/build/lib/cmake/llvm directory
 include(AddLLVM)
+
+include(TableGen)
 
 # The $MLIR_CMAKE_DIR variable is set in the MLIRConfig.cmake file
 list(APPEND CMAKE_MODULE_PATH "${MLIR_CMAKE_DIR}")
@@ -30,6 +36,9 @@ include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(${MLIR_INCLUDE_DIRS})
 
 include_directories("./")
+
+# For files generated using TableGen
+include_directories(${PROJECT_BINARY_DIR})
 
 # Add subdirectories to the build folder
 add_subdirectory(tests)
