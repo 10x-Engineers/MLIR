@@ -2,7 +2,7 @@
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/Affine/LoopUtils.h"
 namespace mlir {
-namespace tutorial {
+namespace dummy {
 
 #define GEN_PASS_DEF_AFFINEFULLUNROLL
 #include "lib/Transform/Affine/Passes.h.inc"

@@ -4,7 +4,7 @@
 #include "mlir/Pass/Pass.h"
 
 namespace mlir {
-namespace tutorial {
+namespace dummy {
 
 #define GEN_PASS_DECL_AFFINEFULLUNROLL
 #include "lib/Transform/Affine/Passes.h.inc"
