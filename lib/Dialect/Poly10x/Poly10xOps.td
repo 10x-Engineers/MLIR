@@ -1,6 +1,0 @@
-#ifndef LIB_DIALECT_POLY_POLY10XOPS_TD_
-#define LIB_DIALECT_POLY_POLY10XOPS_TD_
-
-include "Poly10xDialect.td"
-
-#endif  // LIB_DIALECT_POLY_POLY10XOPS_TD_

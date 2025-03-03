@@ -1,6 +1,6 @@
 #include "lib/Dialect/Poly10x/Poly10xDialect.h"
 
-#include "lib/Dialect/Poly10x/Poly10xOpsDialect.cpp.inc"
+#include "lib/Dialect/Poly10x/Poly10xDialect.cpp.inc"
 
 namespace mlir {
 namespace dummy {
