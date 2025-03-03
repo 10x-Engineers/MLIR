@@ -10,6 +10,6 @@ void Poly10xDialect::initialize() {
   // This is where we will register types and operations with the dialect
 }
 
-}  // namespace poly
-}  // namespace tutorial
-}  // namespace mlir
+} // namespace poly10x
+} // namespace dummy
+} // namespace mlir

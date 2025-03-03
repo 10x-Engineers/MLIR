@@ -7,4 +7,4 @@
 
 #include "lib/Dialect/Poly10x/Poly10xOpsDialect.h.inc"
 
-#endif  // LIB_DIALECT_POLY_POLY10XDIALECT_H_
+#endif // LIB_DIALECT_POLY_POLY10XDIALECT_H_
