@@ -16,9 +16,12 @@ cmake -G Ninja .. \
 popd
 
 cmake --build ./build --target MLIRAffineFullUnrollPasses
+
+# This is required when we have TableGen built dialects
+cmake --build ./build --target mlir-headers
+
 cmake --build ./build --target mlir-doc
 cmake --build ./build --target dummy-opt
-
 cmake --build ./build --target check-mlir
 
 
