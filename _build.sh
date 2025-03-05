@@ -22,7 +22,7 @@ cmake --build ./build --target mlir-headers
 
 cmake --build ./build --target mlir-doc
 cmake --build ./build --target dummy-opt
-# cmake --build ./build --target check-mlir
+cmake --build ./build --target check-mlir
 
 
 ln -fs ./build/compile_commands.json

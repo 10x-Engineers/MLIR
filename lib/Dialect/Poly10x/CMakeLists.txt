@@ -1,5 +1,5 @@
 # add_mlir_dialect(Poly10x poly10x)
-set(LLVM_TARGET_DEFINITIONS Poly10x.td)
+# set(LLVM_TARGET_DEFINITIONS Poly10x.td)
 set(LLVM_TARGET_DEFINITIONS Poly10xTypes.td)
 # mlir_tablegen(Poly10xOps.h.inc -gen-op-decls)
 # mlir_tablegen(Poly10xOps.cpp.inc -gen-op-defs)
