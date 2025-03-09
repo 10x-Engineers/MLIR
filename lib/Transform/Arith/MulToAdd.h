@@ -9,14 +9,14 @@ namespace dummy {
 
 class MulToAddPass
     : public PassWrapper<MulToAddPass, OperationPass<mlir::func::FuncOp>> {
-private:
-  void runOnOperation() override;
+  private:
+    void runOnOperation() override;
 
-  StringRef getArgument() const final { return "mul-to-add"; }
+    StringRef getArgument() const final { return "mul-to-add"; }
 
-  StringRef getDescription() const final {
-    return "Convert multiplications to repeated additions";
-  }
+    StringRef getDescription() const final {
+        return "Convert multiplications to repeated additions";
+    }
 };
 
 } // namespace dummy

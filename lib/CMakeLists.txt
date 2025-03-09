@@ -1,1 +1,2 @@
 add_subdirectory(Transform)
+add_subdirectory(Dialect)
