@@ -1,5 +1,5 @@
-// RUN: dummy-opt %s
-// RUN FileCheck %s < %t
+// RUN: dummy-opt %s > %t
+// RUN: FileCheck %s < %t
 
 module {
     // CHECK-LABEL: test_type_syntax
@@ -8,10 +8,17 @@ module {
         return %arg0 : !poly10x.poly<7>
     }
 
-    // CHECK-LABEL: test_add_syntax
-    func.func @test_add_syntax(%arg0: !poly10x.poly<10>, %arg1: !poly10x.poly<10>) -> !poly10x.poly<10> {
-        // CHECK: poly.add
+    // CHECK-LABEL: test_binop_syntax
+    func.func @test_binop_syntax(%arg0: !poly10x.poly<10>, %arg1: !poly10x.poly<10>) -> !poly10x.poly<10> {
+        // CHECK: poly10x.add
         %0 = poly10x.add %arg0, %arg1 : (!poly10x.poly<10>, !poly10x.poly<10>) -> !poly10x.poly<10>
-        return %0 : !poly10x.poly<10>
+        
+        // CHECK: poly10x.sub
+        %1 = poly10x.sub %arg0, %arg1 : (!poly10x.poly<10>, !poly10x.poly<10>) -> !poly10x.poly<10>
+        
+        // CHECK: poly10x.mul
+        %2 = poly10x.mul %arg0, %arg1 : (!poly10x.poly<10>, !poly10x.poly<10>) -> !poly10x.poly<10>
+        
+        return %2 : !poly10x.poly<10>
     }
 }
