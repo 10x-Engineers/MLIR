@@ -10,7 +10,7 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 // tensors of polys.
 def PolyOrContainer : TypeOrValueSemanticsContainer<Polynomial, "poly-or-container">;
 
-class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure, ElementwiseMappable]> {
+class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure, ElementwiseMappable, SameOperandsAndResultElementType]> {
   let arguments = (ins PolyOrContainer:$lhs, PolyOrContainer:$rhs);
   let results = (outs PolyOrContainer:$output);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($lhs) `,` type($rhs) `)` `->` type($output)";
