@@ -4,7 +4,9 @@
 include "Poly10x.td"
 include "Poly10xTypes.td"
 
-class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic> {
+include "mlir/Interfaces/SideEffectInterfaces.td"
+
+class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure]> {
   let arguments = (ins Polynomial:$lhs, Polynomial:$rhs);
   let results = (outs Polynomial:$output);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($lhs) `,` type($rhs) `)` `->` type($output)";

@@ -3,9 +3,10 @@
 
 #include "lib/Dialect/Poly10x/Poly10xDialect.h"
 #include "lib/Dialect/Poly10x/Poly10xTypes.h"
-// #include "mlir/include/mlir/IR/BuiltinOps.h"
-// #include "mlir/include/mlir/IR/BuiltinTypes.h"
-// #include "mlir/include/mlir/IR/Dialect.h"
+
+#include "mlir/IR/BuiltinOps.h"
+#include "mlir/IR/BuiltinTypes.h"
+#include "mlir/IR/Dialect.h"
 
 #define GET_OP_CLASSES
 #include "lib/Dialect/Poly10x/Poly10xOps.h.inc"
