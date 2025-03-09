@@ -24,8 +24,14 @@ module {
         %4 = poly10x.from_tensor %3 : tensor<3xi32> -> !poly10x.poly<10>
 
         %5 = arith.constant 7 : i32
+
         // CHECK: poly10x.eval
         %6 = poly10x.eval %4, %5 : (!poly10x.poly<10>, i32) -> i32
+
+        %7 = tensor.from_elements %arg0, %arg1 : tensor<2x!poly10x.poly<10>>
+        
+        // CHECK: poly10x.add
+        %8 = poly10x.add %7, %7 : (tensor<2x!poly10x.poly<10>>, tensor<2x!poly10x.poly<10>>) -> tensor<2x!poly10x.poly<10>>
 
         return %4 : !poly10x.poly<10>
     }
