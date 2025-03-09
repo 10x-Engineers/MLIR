@@ -1,5 +1,6 @@
 #include "mlir/IR/DialectRegistry.h"
 #include "mlir/InitAllDialects.h"
+#include "mlir/InitAllPasses.h"
 #include "mlir/Pass/PassRegistry.h"
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 
@@ -13,6 +14,8 @@ int main(int argc, char **argv) {
 
     // register all MLIR dialects
     mlir::registerAllDialects(registry);
+    // register all MLIR passes
+    mlir::registerAllPasses();
     // registering our Poly10xDialect into dummy-opt
     registry.insert<mlir::dummy::poly10x::Poly10xDialect>();
 

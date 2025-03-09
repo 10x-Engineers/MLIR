@@ -2,7 +2,7 @@
 // RUN: FileCheck %s < %t
 
 module {
-  // CHECK-LABEL: @test_single_nested_loop
+  // CHECK-LABEL: test_single_nested_loop
   func.func @test_single_nested_loop(%buffer: memref<4xi32>) -> (i32) {
     %sum_0 = arith.constant 0 : i32
     // CHECK-NOT: affine.for
@@ -14,7 +14,7 @@ module {
     return %sum : i32
   }
 
-  // CHECK-LABEL: @test_doubly_nested_loop
+  // CHECK-LABEL: test_doubly_nested_loop
   func.func @test_doubly_nested_loop(%buffer: memref<4x3xi32>) -> (i32) {
       %sum_0 = arith.constant 0 : i32
       // CHECK-NOT: affine.for
