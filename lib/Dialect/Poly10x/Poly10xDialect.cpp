@@ -15,9 +15,9 @@ namespace poly10x {
 void Poly10xDialect::initialize() {
   // This is where we will register types and operations with the dialect
   addTypes<
-  #define GET_TYPEDEF_LIST
-  #include "lib/Dialect/Poly10x/Poly10xTypes.cpp.inc"
-  >();
+#define GET_TYPEDEF_LIST
+#include "lib/Dialect/Poly10x/Poly10xTypes.cpp.inc"
+      >();
 }
 
 } // namespace poly10x

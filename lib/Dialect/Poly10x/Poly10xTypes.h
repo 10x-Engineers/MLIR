@@ -8,4 +8,4 @@
 #define GET_TYPEDEF_CLASSES
 #include "lib/Dialect/Poly10x/Poly10xTypes.h.inc"
 
-#endif  // LIB_TYPES_POLY_POLY10XTYPES_H_
+#endif // LIB_TYPES_POLY_POLY10XTYPES_H_

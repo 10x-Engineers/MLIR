@@ -1,7 +1,7 @@
 // RUN: dummy-opt %s
 
 module {
-    func.func @main(%arg0: !poly10x.poly) -> !poly10x.poly {
-        return %arg0 : !poly10x.poly
+    func.func @main(%arg0: !poly10x.poly<7>) -> !poly10x.poly<7> {
+        return %arg0 : !poly10x.poly<7>
     }
 }
