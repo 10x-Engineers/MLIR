@@ -8,6 +8,7 @@ set (LIBS
     ${conversion_libs}
     MLIRPoly10x
     AffineFullUnroll
+    MatmulToMmt4d
     MulToAdd
     MLIROptLib
     MLIRPass
