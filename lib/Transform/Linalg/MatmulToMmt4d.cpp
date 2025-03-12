@@ -22,45 +22,34 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
 
     LogicalResult matchAndRewrite(linalg::MatmulOp op,
                                   PatternRewriter &rewriter) const override {
-        // llvm::outs() << "Matched a MatmulOp\n";
-        int64_t M0 = 512;
+        // TODO: Change these to command-line arguments
+        int64_t M0 = 32;
         int64_t N0 = 32;
         int64_t K0 = 32;
-
+        
+        // DPS here means Destination Passing Style
+        // retrieves the input operands
         auto inputs = op.getDpsInputOperands();
+        // retrieves the DPS accumulator/init
         auto outputs = op.getDpsInits();
-
+        
+        // gets the type of given tensor by casting it to RankedTensorType
         auto lhsType = cast<RankedTensorType>(inputs[0]->get().getType());
         auto rhsType = cast<RankedTensorType>(inputs[1]->get().getType());
         auto resultType = cast<RankedTensorType>(outputs[0].getType());
 
-        // auto lhsShape = lhsType.getShape();
-        // auto rhsShape = rhsType.getShape();
-        // auto resultShape = resultType.getShape();
-
-        // llvm::outs() << "LHS Shape: " << lhsShape[0] << "x" << lhsShape[1] <<
-        // '\n'; llvm::outs() << "RHS Shape: " << rhsShape[0] << "x" <<
-        // rhsShape[1] << '\n'; llvm::outs() << "Result Shape: " <<
-        // resultShape[0] << "x" << resultShape[1] << '\n';
-
-        // for (OpFoldResult result : final) {
-        //     // Process each OpFoldResult
-        //     if (auto val = result.dyn_cast<Value>()) {
-        //         llvm::outs() << "Value: " << val << "\n";
-        //     } else if (auto attr = result.dyn_cast<Attribute>()) {
-        //         llvm::outs() << "Attribute: " << attr << "\n";
-        //     }
-        // }
-
         Location loc = op.getLoc();
         Value paddingValue = rewriter.create<arith::ConstantOp>(
             loc, rewriter.getZeroAttr(lhsType.getElementType()));
-
+        
+        // returns the dimension of given tensor value
         llvm::SmallVector<OpFoldResult> lhsSourceDims =
             tensor::getMixedSizes(rewriter, loc, inputs[0]->get());
+        // returns the ArrayAttr as a OpFoldResult
         llvm::SmallVector<OpFoldResult> lhsTileSizes =
             getAsOpFoldResult(rewriter.getI64ArrayAttr({M0, K0}));
         SmallVector<int64_t> lhsInnerDimsPos = {0, 1};
+        // returns the shape that the pack result would result in
         SmallVector<OpFoldResult> lhsResultDims =
             linalg::PackOp::getResultShape(rewriter, loc, lhsSourceDims,
                                            lhsTileSizes, lhsInnerDimsPos,
@@ -100,7 +89,8 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         linalg::PackOp resPack = rewriter.create<linalg::PackOp>(
             loc, outputs[0], emptyOp2, resInnerDimsPos, resTileSizes,
             paddingValue, resInnerDimsPos);
-
+        
+        // TODO: What is ValueRange?
         linalg::Mmt4DOp mmt4d = rewriter.create<linalg::Mmt4DOp>(
             loc, resPack.getResult().getType(),
             ValueRange{lhsPack->getResult(0), rhsPack->getResult(0)},
@@ -113,19 +103,12 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         linalg::UnPackOp unpack = rewriter.create<linalg::UnPackOp>(
             loc, mmt4d->getResult(0), emptyOp3, resInnerDimsPos, resTileSizes,
             resInnerDimsPos);
-
+        
+        // This repalces the uses of MatmulOp with UnpackOp
         rewriter.replaceAllOpUsesWith(op, unpack);
+        // erases the MatmulOp
         rewriter.eraseOp(op);
-
-        // for (OpFoldResult result : mmt4dDims) {
-        //     // Process each OpFoldResult
-        //     if (auto val = result.dyn_cast<Value>()) {
-        //         llvm::outs() << "Value: " << val << "\n";
-        //     } else if (auto attr = result.dyn_cast<Attribute>()) {
-        //         llvm::outs() << "Attribute: " << attr << "\n";
-        //     }
-        // }
-        // llvm::outs() << "Hell0\n";
+        
         return success();
     }
 };
