@@ -26,13 +26,13 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         int64_t M0 = 32;
         int64_t N0 = 32;
         int64_t K0 = 32;
-        
+
         // DPS here means Destination Passing Style
         // retrieves the input operands
         auto inputs = op.getDpsInputOperands();
         // retrieves the DPS accumulator/init
         auto outputs = op.getDpsInits();
-        
+
         // gets the type of given tensor by casting it to RankedTensorType
         auto lhsType = cast<RankedTensorType>(inputs[0]->get().getType());
         auto rhsType = cast<RankedTensorType>(inputs[1]->get().getType());
@@ -41,7 +41,7 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         Location loc = op.getLoc();
         Value paddingValue = rewriter.create<arith::ConstantOp>(
             loc, rewriter.getZeroAttr(lhsType.getElementType()));
-        
+
         // returns the dimension of given tensor value
         llvm::SmallVector<OpFoldResult> lhsSourceDims =
             tensor::getMixedSizes(rewriter, loc, inputs[0]->get());
@@ -89,7 +89,7 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         linalg::PackOp resPack = rewriter.create<linalg::PackOp>(
             loc, outputs[0], emptyOp2, resInnerDimsPos, resTileSizes,
             paddingValue, resInnerDimsPos);
-        
+
         // TODO: What is ValueRange?
         linalg::Mmt4DOp mmt4d = rewriter.create<linalg::Mmt4DOp>(
             loc, resPack.getResult().getType(),
@@ -103,12 +103,12 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
         linalg::UnPackOp unpack = rewriter.create<linalg::UnPackOp>(
             loc, mmt4d->getResult(0), emptyOp3, resInnerDimsPos, resTileSizes,
             resInnerDimsPos);
-        
+
         // This repalces the uses of MatmulOp with UnpackOp
         rewriter.replaceAllOpUsesWith(op, unpack);
         // erases the MatmulOp
         rewriter.eraseOp(op);
-        
+
         return success();
     }
 };
