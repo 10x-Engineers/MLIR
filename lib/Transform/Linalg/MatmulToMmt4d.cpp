@@ -16,16 +16,27 @@
 namespace mlir {
 namespace dummy {
 
+static llvm::cl::opt<int64_t>
+    clMTile("dummy-m-tile", llvm::cl::desc("Inner tile size of M dimension"),
+            llvm::cl::init(32));
+
+static llvm::cl::opt<int64_t>
+    clNTile("dummy-n-tile", llvm::cl::desc("Inner tile size of N dimension"),
+            llvm::cl::init(32));
+
+static llvm::cl::opt<int64_t>
+    clKTile("dummy-k-tile", llvm::cl::desc("Inner tile size of K dimension"),
+            llvm::cl::init(32));
+
 struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
     Matmul(mlir::MLIRContext *context)
         : OpRewritePattern<linalg::MatmulOp>(context, /*benefit=*/1) {}
 
     LogicalResult matchAndRewrite(linalg::MatmulOp op,
                                   PatternRewriter &rewriter) const override {
-        // TODO: Change these to command-line arguments
-        int64_t M0 = 32;
-        int64_t N0 = 32;
-        int64_t K0 = 32;
+        int64_t M0 = clMTile;
+        int64_t N0 = clNTile;
+        int64_t K0 = clKTile;
 
         // DPS here means Destination Passing Style
         // retrieves the input operands
