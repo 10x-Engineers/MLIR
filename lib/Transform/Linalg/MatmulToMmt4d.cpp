@@ -101,7 +101,8 @@ struct Matmul : public OpRewritePattern<linalg::MatmulOp> {
             loc, outputs[0], emptyOp2, resInnerDimsPos, resTileSizes,
             paddingValue, resInnerDimsPos);
 
-        // TODO: What is ValueRange?
+        // ValueRange is just a view over the underlying data
+        // It does not hold the actual ownership of the data
         linalg::Mmt4DOp mmt4d = rewriter.create<linalg::Mmt4DOp>(
             loc, resPack.getResult().getType(),
             ValueRange{lhsPack->getResult(0), rhsPack->getResult(0)},
