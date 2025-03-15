@@ -33,6 +33,12 @@ module {
         // CHECK: poly10x.add
         %8 = poly10x.add %7, %7 : (tensor<2x!poly10x.poly<10>>, tensor<2x!poly10x.poly<10>>) -> tensor<2x!poly10x.poly<10>>
 
+        // CHECK: poly10x.constant
+        %10 = poly10x.constant dense<[2, 3, 4]> : tensor<3xi32> : !poly10x.poly<10>
+        %11 = poly10x.constant dense<[2, 3, 4]> : tensor<3xi8> : !poly10x.poly<10>
+        %12 = poly10x.constant dense<"0x020304"> : tensor<3xi8> : !poly10x.poly<10>
+        %13 = poly10x.constant dense<4> : tensor<100xi32> : !poly10x.poly<10>
+
         return %4 : !poly10x.poly<10>
     }
 }

@@ -6,6 +6,13 @@ include "Poly10xTypes.td"
 
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
+def Poly10x_ConstantOp : Op<Poly10x_Dialect, "constant", [Pure, ConstantLike]> {
+  let summary = "Define a constant polynomial via an attribute.";
+  let arguments = (ins AnyIntElementsAttr:$coefficients);
+  let results = (outs Polynomial:$output);
+  let assemblyFormat = "$coefficients attr-dict `:` type($output)";
+}
+
 // Type constraint for poly binop arguments: polys, vectors of polys, or
 // tensors of polys.
 def PolyOrContainer : TypeOrValueSemanticsContainer<Polynomial, "poly-or-container">;
