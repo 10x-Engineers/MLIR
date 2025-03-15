@@ -22,6 +22,7 @@ class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure, Elem
   let arguments = (ins PolyOrContainer:$lhs, PolyOrContainer:$rhs);
   let results = (outs PolyOrContainer:$output);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($lhs) `,` type($rhs) `)` `->` type($output)";
+  let hasFolder = 1;
 }
 
 def Poly10x_AddOp : Poly10x_BinOp<"add"> {
@@ -41,6 +42,7 @@ def Poly10x_FromTensorOp : Op<Poly10x_Dialect, "from_tensor", [Pure]> {
   let arguments = (ins TensorOf<[AnyInteger]>:$input);
   let results = (outs Polynomial:$output);
   let assemblyFormat = "$input attr-dict `:` type($input) `->` type($output)";
+  let hasFolder = 1;
 }
 
 def Poly10x_EvalOp : Op<Poly10x_Dialect, "eval"> {
