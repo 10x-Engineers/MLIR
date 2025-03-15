@@ -3,7 +3,7 @@
 // Note how sscp creates new constants for the computed values,
 // though it does not remove the dead code.
 
-// CHECK-LABEL: @test_arith_sccp
+// CHECK-LABEL: test_arith_sccp
 // CHECK-NEXT: %[[v0:.*]] = arith.constant 63 : i32
 // CHECK-NEXT: %[[v1:.*]] = arith.constant 49 : i32
 // CHECK-NEXT: %[[v2:.*]] = arith.constant 14 : i32
@@ -19,7 +19,7 @@ func.func @test_arith_sccp() -> i32 {
   return %2 : i32
 }
 
-// CHECK-LABEL: @test_poly_sccp
+// CHECK-LABEL: test_poly_sccp
 func.func @test_poly_sccp() -> !poly10x.poly<10> {
   %0 = arith.constant dense<[1, 2, 3]> : tensor<3xi32>
   %p0 = poly10x.from_tensor %0 : tensor<3xi32> -> !poly10x.poly<10>
