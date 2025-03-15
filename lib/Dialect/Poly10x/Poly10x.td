@@ -13,6 +13,7 @@ def Poly10x_Dialect : Dialect {
     let cppNamespace = "::mlir::dummy::poly10x";
 
     let useDefaultTypePrinterParser = 1;
+    let hasConstantMaterializer = 1;
 }
 
 #endif  // LIB_DIALECT_POLY_POLY10XDIALECT_TD_

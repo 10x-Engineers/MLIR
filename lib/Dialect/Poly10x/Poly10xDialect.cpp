@@ -29,6 +29,15 @@ void Poly10xDialect::initialize() {
         >();
 }
 
+Operation *Poly10xDialect::materializeConstant(OpBuilder &builder,
+                                               Attribute value, Type type,
+                                               Location loc) {
+    auto coefficients = dyn_cast<DenseIntElementsAttr>(value);
+    if (!coefficients)
+        return nullptr;
+    return builder.create<ConstantOp>(loc, type, coefficients);
+}
+
 } // namespace poly10x
 } // namespace dummy
 } // namespace mlir

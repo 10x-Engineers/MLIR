@@ -6,7 +6,15 @@ include "Poly10xTypes.td"
 
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
-// Type constraint for poly binop arguments: polys, vectors of polys, or
+def Poly10x_ConstantOp : Op<Poly10x_Dialect, "constant", [Pure, ConstantLike]> {
+  let summary = "Define a constant polynomial via an attribute.";
+  let arguments = (ins AnyIntElementsAttr:$coefficients);
+  let results = (outs Polynomial:$output);
+  let assemblyFormat = "$coefficients attr-dict `:` type($output)";
+  let hasFolder = 1;
+}
+
+// Type constraint for poly10x binop arguments: polys, vectors of polys, or
 // tensors of polys.
 def PolyOrContainer : TypeOrValueSemanticsContainer<Polynomial, "poly-or-container">;
 
@@ -14,6 +22,7 @@ class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure, Elem
   let arguments = (ins PolyOrContainer:$lhs, PolyOrContainer:$rhs);
   let results = (outs PolyOrContainer:$output);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($lhs) `,` type($rhs) `)` `->` type($output)";
+  let hasFolder = 1;
 }
 
 def Poly10x_AddOp : Poly10x_BinOp<"add"> {
@@ -33,6 +42,7 @@ def Poly10x_FromTensorOp : Op<Poly10x_Dialect, "from_tensor", [Pure]> {
   let arguments = (ins TensorOf<[AnyInteger]>:$input);
   let results = (outs Polynomial:$output);
   let assemblyFormat = "$input attr-dict `:` type($input) `->` type($output)";
+  let hasFolder = 1;
 }
 
 def Poly10x_EvalOp : Op<Poly10x_Dialect, "eval"> {
