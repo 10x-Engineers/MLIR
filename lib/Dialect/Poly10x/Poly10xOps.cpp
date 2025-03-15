@@ -5,9 +5,9 @@ namespace dummy {
 namespace poly10x {
 
 OpFoldResult ConstantOp::fold(ConstantOp::FoldAdaptor adaptor) {
-  return adaptor.getCoefficients();
+    return adaptor.getCoefficients();
 }
 
-}  // namespace poly
-}  // namespace tutorial
-}  // namespace mlir
+} // namespace poly10x
+} // namespace dummy
+} // namespace mlir
