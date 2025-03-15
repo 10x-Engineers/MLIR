@@ -11,9 +11,10 @@ def Poly10x_ConstantOp : Op<Poly10x_Dialect, "constant", [Pure, ConstantLike]> {
   let arguments = (ins AnyIntElementsAttr:$coefficients);
   let results = (outs Polynomial:$output);
   let assemblyFormat = "$coefficients attr-dict `:` type($output)";
+  let hasFolder = 1;
 }
 
-// Type constraint for poly binop arguments: polys, vectors of polys, or
+// Type constraint for poly10x binop arguments: polys, vectors of polys, or
 // tensors of polys.
 def PolyOrContainer : TypeOrValueSemanticsContainer<Polynomial, "poly-or-container">;
 
