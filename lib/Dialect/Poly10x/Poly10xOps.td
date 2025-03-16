@@ -50,6 +50,7 @@ def Poly10x_EvalOp : Op<Poly10x_Dialect, "eval"> {
   let arguments = (ins Polynomial:$input, AnyInteger:$point);
   let results = (outs AnyInteger:$output);
   let assemblyFormat = "$input `,` $point attr-dict `:` `(` type($input) `,` type($point) `)` `->` type($output)";
+  let hasVerifier = 1;
 }
 
 #endif  // LIB_DIALECT_POLY_POLY10XOPS_TD_
