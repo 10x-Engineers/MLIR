@@ -3,7 +3,10 @@
 #include "mlir/Dialect/CommonFolders.h"
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/OpDefinition.h"
+#include "mlir/IR/PatternMatch.h"
 #include "llvm/ADT/APInt.h"
+
+#include "lib/Dialect/Poly10x/Poly10xCanonicalize.cpp.inc"
 
 namespace mlir {
 namespace dummy {
@@ -26,8 +29,8 @@ OpFoldResult SubOp::fold(SubOp::FoldAdaptor adaptor) {
 }
 
 OpFoldResult MulOp::fold(MulOp::FoldAdaptor adaptor) {
-    auto lhs = dyn_cast<DenseElementsAttr>(adaptor.getOperands()[0]);
-    auto rhs = dyn_cast<DenseElementsAttr>(adaptor.getOperands()[1]);
+    auto lhs = dyn_cast_or_null<DenseElementsAttr>(adaptor.getOperands()[0]);
+    auto rhs = dyn_cast_or_null<DenseElementsAttr>(adaptor.getOperands()[1]);
 
     if (!lhs || !rhs) {
         return nullptr;
@@ -71,6 +74,17 @@ LogicalResult EvalOp::verify() {
                ? success()
                : emitOpError("argument point must be a 32-bit integer");
 }
+
+void AddOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
+    ::mlir::MLIRContext *context) {}
+
+void SubOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
+                                        ::mlir::MLIRContext *context) {
+    results.add<DifferenceOfSquares>(context);
+}
+
+void MulOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
+    ::mlir::MLIRContext *context) {}
 
 } // namespace poly10x
 } // namespace dummy

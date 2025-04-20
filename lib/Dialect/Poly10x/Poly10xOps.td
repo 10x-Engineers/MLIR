@@ -23,6 +23,14 @@ class Poly10x_BinOp<string mnemonic> : Op<Poly10x_Dialect, mnemonic, [Pure, Elem
   let results = (outs PolyOrContainer:$output);
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` `(` type($lhs) `,` type($rhs) `)` `->` type($output)";
   let hasFolder = 1;
+  let hasCanonicalizer = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$lhs, "Value":$rhs), [{
+      auto type = lhs.getType();
+      build($_builder, $_state, type, lhs, rhs);
+    }]>
+  ];
 }
 
 def Poly10x_AddOp : Poly10x_BinOp<"add"> {
