@@ -6,6 +6,8 @@
 #include "mlir/IR/PatternMatch.h"
 #include "llvm/ADT/APInt.h"
 
+#include "lib/Dialect/Poly10x/Poly10xCanonicalize.cpp.inc"
+
 namespace mlir {
 namespace dummy {
 namespace poly10x {
@@ -72,50 +74,6 @@ LogicalResult EvalOp::verify() {
                ? success()
                : emitOpError("argument point must be a 32-bit integer");
 }
-
-struct DifferenceOfSquares : public OpRewritePattern<SubOp> {
-    DifferenceOfSquares(mlir::MLIRContext *context)
-        : OpRewritePattern<SubOp>(context, /*benefit=*/1) {}
-
-    LogicalResult matchAndRewrite(SubOp op,
-                                  PatternRewriter &rewriter) const override {
-        Value lhs = op.getOperand(0);
-        Value rhs = op.getOperand(1);
-
-        // If either arg has another use, then this rewrite is probably less
-        // efficient, because it cannot delete the mul ops.
-        if (!lhs.hasOneUse() || !rhs.hasOneUse()) {
-            return failure();
-        }
-
-        auto rhsMul = rhs.getDefiningOp<MulOp>();
-        auto lhsMul = lhs.getDefiningOp<MulOp>();
-        if (!rhsMul || !lhsMul) {
-            return failure();
-        }
-
-        bool rhsMulOpsAgree = rhsMul.getLhs() == rhsMul.getRhs();
-        bool lhsMulOpsAgree = lhsMul.getLhs() == lhsMul.getRhs();
-
-        if (!rhsMulOpsAgree || !lhsMulOpsAgree) {
-            return failure();
-        }
-
-        auto x = lhsMul.getLhs();
-        auto y = rhsMul.getLhs();
-
-        AddOp newAdd = rewriter.create<AddOp>(op.getLoc(), x.getType(), x, y);
-        SubOp newSub = rewriter.create<SubOp>(op.getLoc(), x.getType(), x, y);
-        MulOp newMul = rewriter.create<MulOp>(op.getLoc(), newAdd.getType(),
-                                              newAdd, newSub);
-
-        rewriter.replaceOp(op, newMul);
-        // We don't need to remove the original ops because MLIR already has
-        // canonicalization patterns that remove unused ops.
-
-        return success();
-    }
-};
 
 void AddOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
     ::mlir::MLIRContext *context) {}
