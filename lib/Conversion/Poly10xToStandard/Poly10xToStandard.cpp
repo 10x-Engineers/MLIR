@@ -14,26 +14,30 @@ namespace poly10x {
 #include "lib/Conversion/Poly10xToStandard/Poly10xToStandard.h.inc"
 
 struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
-  using Poly10xToStandardBase::Poly10xToStandardBase;
+    using Poly10xToStandardBase::Poly10xToStandardBase;
 
-  void runOnOperation() override {
-    MLIRContext *context = &getContext();
-    auto *module = getOperation();
+    void runOnOperation() override {
+        MLIRContext *context = &getContext();
+        auto *module = getOperation();
 
-    // ConversionTarget is used to specify ops as legal, illegal, or dynamically legal
-    ConversionTarget target(*context);
-    // specifying that poly10x dialect is illegal and should not exist after this pass runs
-    target.addIllegalDialect<Poly10xDialect>();
+        // ConversionTarget is used to specify ops as legal, illegal, or
+        // dynamically legal
+        ConversionTarget target(*context);
+        // specifying that poly10x dialect is illegal and should not exist after
+        // this pass runs
+        target.addIllegalDialect<Poly10xDialect>();
 
-    RewritePatternSet patterns(context);
+        RewritePatternSet patterns(context);
 
-    // a partial conversion will legalize as many operations to the target as possible, but will allow 
-    // pre-existing operations that were not explicitly marked as “illegal” to remain unconverted.
-    // official docs are good so read up on different kinds of conversions from there
-    if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
-      signalPassFailure();
+        // a partial conversion will legalize as many operations to the target
+        // as possible, but will allow pre-existing operations that were not
+        // explicitly marked as “illegal” to remain unconverted. official docs
+        // are good so read up on different kinds of conversions from there
+        if (failed(
+                applyPartialConversion(module, target, std::move(patterns)))) {
+            signalPassFailure();
+        }
     }
-  }
 };
 
 } // namespace poly10x
