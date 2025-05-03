@@ -21,5 +21,8 @@ add_mlir_dialect_library(MLIRPoly10x
     ADDITIONAL_HEADER_DIRS
     ${PROJECT_SOURCE_DIR}/lib/Dialect/Poly10x
 
+    DEPENDS
+    MLIRPoly10xIncGen
+
     LINK_LIBS PUBLIC
-) 
+)
