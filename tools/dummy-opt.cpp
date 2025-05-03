@@ -10,6 +10,8 @@
 
 #include "lib/Dialect/Poly10x/Poly10xDialect.h"
 
+#include "lib/Conversion/Poly10xToStandard/Poly10xToStandard.h"
+
 int main(int argc, char **argv) {
     mlir::DialectRegistry registry;
 
@@ -25,6 +27,9 @@ int main(int argc, char **argv) {
     // register hand-authored passes
     mlir::PassRegistration<mlir::dummy::MulToAddPass>();
     mlir::PassRegistration<mlir::dummy::MatmulToMmt4dPass>();
+
+    // register conversion pass from poly10x to standard MLIR dialects
+    mlir::dummy::poly10x::registerPoly10xToStandard();
 
     return mlir::asMainReturnCode(
         mlir::MlirOptMain(argc, argv, "Dummy Pass Driver", registry));
