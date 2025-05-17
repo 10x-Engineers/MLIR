@@ -13,9 +13,9 @@ namespace poly10x {
 #define GEN_PASS_DEF_POLY10XTOSTANDARD
 #include "lib/Conversion/Poly10xToStandard/Poly10xToStandard.h.inc"
 
-class PolyToStandardTypeConverter : public TypeConverter {
+class Poly10xToStandardTypeConverter : public TypeConverter {
     public:
-    PolyToStandardTypeConverter(MLIRContext *ctx) {
+    Poly10xToStandardTypeConverter(MLIRContext *ctx) {
         // fallback pattern to convert any type to itself
         // this is useful for types that are not explicitly handled by the
         // conversion patterns
@@ -28,6 +28,29 @@ class PolyToStandardTypeConverter : public TypeConverter {
                 IntegerType::get(ctx, 32, IntegerType::SignednessSemantics::Signless);
             return RankedTensorType::get({degreeBound}, elementTy);
         });
+    }
+};
+
+struct ConvertAdd : public OpConversionPattern<AddOp> {
+    ConvertAdd(mlir::MLIRContext *context)
+        : OpConversionPattern<AddOp>(context) {}
+  
+    using OpConversionPattern::OpConversionPattern;
+  
+    // OpAdaptor holds type-converted operands during dialect conversion.
+    // Uses table-gen names instead of generic getOperand-style access.
+    // using OpAdaptor = AddOp::Adaptor;
+
+    // AddOp provides access to original, unconverted operands/results.
+    // Same as in standard rewrite patterns.
+    LogicalResult matchAndRewrite(
+        AddOp op, OpAdaptor adaptor,
+        ConversionPatternRewriter &rewriter) const override {
+            
+        arith::AddIOp addOp = rewriter.create<arith::AddIOp>(
+            op.getLoc(), adaptor.getLhs(), adaptor.getRhs());
+        rewriter.replaceOp(op, addOp);
+      return success();
     }
 };
 
@@ -45,7 +68,12 @@ struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
         // this pass runs
         target.addIllegalDialect<Poly10xDialect>();
 
+        // Mark Arith as legal, so that we can use it in the conversion
+        target.addLegalDialect<arith::ArithDialect>();
+
         RewritePatternSet patterns(context);
+        Poly10xToStandardTypeConverter typeConverter(context);
+        patterns.add<ConvertAdd>(typeConverter, context);
 
         // a partial conversion will legalize as many operations to the target
         // as possible, but will allow pre-existing operations that were not
