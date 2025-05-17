@@ -66,7 +66,7 @@ OpFoldResult MulOp::fold(MulOp::FoldAdaptor adaptor) {
 
 OpFoldResult FromTensorOp::fold(FromTensorOp::FoldAdaptor adaptor) {
     // Returns null if the cast failed, which corresponds to a failed fold.
-    return dyn_cast<DenseIntElementsAttr>(adaptor.getInput());
+    return dyn_cast_or_null<DenseIntElementsAttr>(adaptor.getInput());
 }
 
 LogicalResult EvalOp::verify() {
@@ -76,7 +76,7 @@ LogicalResult EvalOp::verify() {
 }
 
 void AddOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
-    ::mlir::MLIRContext *context) {}
+                                        ::mlir::MLIRContext *context) {}
 
 void SubOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
                                         ::mlir::MLIRContext *context) {
@@ -84,7 +84,7 @@ void SubOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
 }
 
 void MulOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
-    ::mlir::MLIRContext *context) {}
+                                        ::mlir::MLIRContext *context) {}
 
 } // namespace poly10x
 } // namespace dummy

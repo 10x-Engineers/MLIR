@@ -8,6 +8,7 @@
 
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/Func/Transforms/FuncConversions.h"
+#include "mlir/IR/ImplicitLocOpBuilder.h"
 namespace mlir {
 namespace dummy {
 namespace poly10x {
@@ -16,18 +17,18 @@ namespace poly10x {
 #include "lib/Conversion/Poly10xToStandard/Poly10xToStandard.h.inc"
 
 class Poly10xToStandardTypeConverter : public TypeConverter {
-    public:
+  public:
     Poly10xToStandardTypeConverter(MLIRContext *ctx) {
         // fallback pattern to convert any type to itself
         // this is useful for types that are not explicitly handled by the
         // conversion patterns
         addConversion([](Type type) { return type; });
-        
+
         // conversion pattern for PolynomialType
         addConversion([ctx](PolynomialType type) -> Type {
             int degreeBound = type.getDegreeBound();
-            IntegerType elementTy =
-                IntegerType::get(ctx, 32, IntegerType::SignednessSemantics::Signless);
+            IntegerType elementTy = IntegerType::get(
+                ctx, 32, IntegerType::SignednessSemantics::Signless);
             return RankedTensorType::get({degreeBound}, elementTy);
         });
     }
@@ -36,23 +37,94 @@ class Poly10xToStandardTypeConverter : public TypeConverter {
 struct ConvertAdd : public OpConversionPattern<AddOp> {
     ConvertAdd(mlir::MLIRContext *context)
         : OpConversionPattern<AddOp>(context) {}
-  
+
     using OpConversionPattern::OpConversionPattern;
-  
+
     // OpAdaptor holds type-converted operands during dialect conversion.
     // Uses table-gen names instead of generic getOperand-style access.
     // using OpAdaptor = AddOp::Adaptor;
 
     // AddOp provides access to original, unconverted operands/results.
     // Same as in standard rewrite patterns.
-    LogicalResult matchAndRewrite(
-        AddOp op, OpAdaptor adaptor,
-        ConversionPatternRewriter &rewriter) const override {
-            
+    LogicalResult
+    matchAndRewrite(AddOp op, OpAdaptor adaptor,
+                    ConversionPatternRewriter &rewriter) const override {
+
         arith::AddIOp addOp = rewriter.create<arith::AddIOp>(
             op.getLoc(), adaptor.getLhs(), adaptor.getRhs());
         rewriter.replaceOp(op, addOp);
-      return success();
+        return success();
+    }
+};
+
+struct ConvertSub : public OpConversionPattern<SubOp> {
+    ConvertSub(mlir::MLIRContext *context)
+        : OpConversionPattern<SubOp>(context) {}
+
+    using OpConversionPattern::OpConversionPattern;
+
+    LogicalResult
+    matchAndRewrite(SubOp op, OpAdaptor adaptor,
+                    ConversionPatternRewriter &rewriter) const override {
+
+        arith::SubIOp subOp = rewriter.create<arith::SubIOp>(
+            op.getLoc(), adaptor.getLhs(), adaptor.getRhs());
+        rewriter.replaceOp(op, subOp);
+        return success();
+    }
+};
+
+struct ConvertFromTensor : public OpConversionPattern<FromTensorOp> {
+    ConvertFromTensor(mlir::MLIRContext *context)
+        : OpConversionPattern<FromTensorOp>(context) {}
+
+    using OpConversionPattern::OpConversionPattern;
+
+    LogicalResult
+    matchAndRewrite(FromTensorOp op, OpAdaptor adaptor,
+                    ConversionPatternRewriter &rewriter) const override {
+        auto resultTensorTy = cast<RankedTensorType>(
+            typeConverter->convertType(op->getResultTypes()[0]));
+        auto resultShape = resultTensorTy.getShape()[0];
+        auto resultEltTy = resultTensorTy.getElementType();
+
+        auto inputTensorTy = op.getInput().getType();
+        auto inputShape = inputTensorTy.getShape()[0];
+
+        // Zero pad the tensor if the coefficients' size is less than the
+        // polynomial degree.
+
+        // ImplicitLocOpBuilder maintains a 'current location', allowing use of the create<> method without specifying the location.
+        // It is otherwise the same as OpBuilder. 
+        ImplicitLocOpBuilder b(op.getLoc(), rewriter);
+        auto coeffValue = adaptor.getInput();
+        if (inputShape < resultShape) {
+            SmallVector<OpFoldResult, 1> low, high;
+            low.push_back(rewriter.getIndexAttr(0));
+            high.push_back(rewriter.getIndexAttr(resultShape - inputShape));
+            coeffValue = b.create<tensor::PadOp>(
+                resultTensorTy, coeffValue, low, high,
+                b.create<arith::ConstantOp>(
+                    rewriter.getIntegerAttr(resultEltTy, 0)),
+                /*nofold=*/false);
+        }
+
+        rewriter.replaceOp(op, coeffValue);
+        return success();
+    }
+};
+
+struct ConvertToTensor : public OpConversionPattern<ToTensorOp> {
+    ConvertToTensor(mlir::MLIRContext *context)
+        : OpConversionPattern<ToTensorOp>(context) {}
+
+    using OpConversionPattern::OpConversionPattern;
+
+    LogicalResult
+    matchAndRewrite(ToTensorOp op, OpAdaptor adaptor,
+                    ConversionPatternRewriter &rewriter) const override {
+        rewriter.replaceOp(op, adaptor.getInput());
+        return success();
     }
 };
 
@@ -75,29 +147,31 @@ struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
 
         RewritePatternSet patterns(context);
         Poly10xToStandardTypeConverter typeConverter(context);
-        patterns.add<ConvertAdd>(typeConverter, context);
+        patterns
+            .add<ConvertAdd, ConvertSub, ConvertFromTensor, ConvertToTensor>(
+                typeConverter, context);
 
         populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(
             patterns, typeConverter);
         target.addDynamicallyLegalOp<func::FuncOp>([&](func::FuncOp op) {
-          return typeConverter.isSignatureLegal(op.getFunctionType()) &&
-                 typeConverter.isLegal(&op.getBody());
+            return typeConverter.isSignatureLegal(op.getFunctionType()) &&
+                   typeConverter.isLegal(&op.getBody());
         });
-    
+
         populateReturnOpTypeConversionPattern(patterns, typeConverter);
         target.addDynamicallyLegalOp<func::ReturnOp>(
             [&](func::ReturnOp op) { return typeConverter.isLegal(op); });
-    
+
         populateCallOpTypeConversionPattern(patterns, typeConverter);
         target.addDynamicallyLegalOp<func::CallOp>(
             [&](func::CallOp op) { return typeConverter.isLegal(op); });
-    
+
         populateBranchOpInterfaceTypeConversionPattern(patterns, typeConverter);
         target.markUnknownOpDynamicallyLegal([&](Operation *op) {
-          return isNotBranchOpInterfaceOrReturnLikeOp(op) ||
-                 isLegalForBranchOpInterfaceTypeConversionPattern(op,
-                                                                  typeConverter) ||
-                 isLegalForReturnOpTypeConversionPattern(op, typeConverter);
+            return isNotBranchOpInterfaceOrReturnLikeOp(op) ||
+                   isLegalForBranchOpInterfaceTypeConversionPattern(
+                       op, typeConverter) ||
+                   isLegalForReturnOpTypeConversionPattern(op, typeConverter);
         });
 
         // a partial conversion will legalize as many operations to the target

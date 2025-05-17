@@ -49,7 +49,7 @@ def Poly10x_FromTensorOp : Op<Poly10x_Dialect, "from_tensor", [Pure]> {
   let summary = "Creates a Polynomial from integer coefficients stored in a tensor.";
   let arguments = (ins TensorOf<[AnyInteger]>:$input);
   let results = (outs Polynomial:$output);
-  let assemblyFormat = "$input attr-dict `:` type($input) `->` type($output)";
+  let assemblyFormat = "$input attr-dict `:` type($input) `->` qualified(type($output))";
   let hasFolder = 1;
 }
 
