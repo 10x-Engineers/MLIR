@@ -13,6 +13,24 @@ namespace poly10x {
 #define GEN_PASS_DEF_POLY10XTOSTANDARD
 #include "lib/Conversion/Poly10xToStandard/Poly10xToStandard.h.inc"
 
+class PolyToStandardTypeConverter : public TypeConverter {
+    public:
+    PolyToStandardTypeConverter(MLIRContext *ctx) {
+        // fallback pattern to convert any type to itself
+        // this is useful for types that are not explicitly handled by the
+        // conversion patterns
+        addConversion([](Type type) { return type; });
+        
+        // conversion pattern for PolynomialType
+        addConversion([ctx](PolynomialType type) -> Type {
+            int degreeBound = type.getDegreeBound();
+            IntegerType elementTy =
+                IntegerType::get(ctx, 32, IntegerType::SignednessSemantics::Signless);
+            return RankedTensorType::get({degreeBound}, elementTy);
+        });
+    }
+};
+
 struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
     using Poly10xToStandardBase::Poly10xToStandardBase;
 
