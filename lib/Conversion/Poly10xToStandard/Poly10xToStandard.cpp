@@ -93,6 +93,9 @@ struct ConvertFromTensor : public OpConversionPattern<FromTensorOp> {
 
         // Zero pad the tensor if the coefficients' size is less than the
         // polynomial degree.
+
+        // ImplicitLocOpBuilder maintains a 'current location', allowing use of the create<> method without specifying the location.
+        // It is otherwise the same as OpBuilder. 
         ImplicitLocOpBuilder b(op.getLoc(), rewriter);
         auto coeffValue = adaptor.getInput();
         if (inputShape < resultShape) {
