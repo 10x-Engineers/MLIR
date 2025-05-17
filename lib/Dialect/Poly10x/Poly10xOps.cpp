@@ -76,7 +76,7 @@ LogicalResult EvalOp::verify() {
 }
 
 void AddOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
-    ::mlir::MLIRContext *context) {}
+                                        ::mlir::MLIRContext *context) {}
 
 void SubOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
                                         ::mlir::MLIRContext *context) {
@@ -84,7 +84,7 @@ void SubOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
 }
 
 void MulOp::getCanonicalizationPatterns(::mlir::RewritePatternSet &results,
-    ::mlir::MLIRContext *context) {}
+                                        ::mlir::MLIRContext *context) {}
 
 } // namespace poly10x
 } // namespace dummy
