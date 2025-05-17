@@ -8,6 +8,7 @@
 
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/Func/Transforms/FuncConversions.h"
+#include "mlir/IR/ImplicitLocOpBuilder.h"
 namespace mlir {
 namespace dummy {
 namespace poly10x {
@@ -73,6 +74,56 @@ struct ConvertSub : public OpConversionPattern<SubOp> {
     }
 };
 
+struct ConvertFromTensor : public OpConversionPattern<FromTensorOp> {
+    ConvertFromTensor(mlir::MLIRContext *context)
+        : OpConversionPattern<FromTensorOp>(context) {}
+  
+    using OpConversionPattern::OpConversionPattern;
+  
+    LogicalResult matchAndRewrite(
+        FromTensorOp op, OpAdaptor adaptor,
+        ConversionPatternRewriter &rewriter) const override {
+      auto resultTensorTy = cast<RankedTensorType>(
+          typeConverter->convertType(op->getResultTypes()[0]));
+      auto resultShape = resultTensorTy.getShape()[0];
+      auto resultEltTy = resultTensorTy.getElementType();
+  
+      auto inputTensorTy = op.getInput().getType();
+      auto inputShape = inputTensorTy.getShape()[0];
+  
+      // Zero pad the tensor if the coefficients' size is less than the polynomial
+      // degree.
+      ImplicitLocOpBuilder b(op.getLoc(), rewriter);
+      auto coeffValue = adaptor.getInput();
+      if (inputShape < resultShape) {
+        SmallVector<OpFoldResult, 1> low, high;
+        low.push_back(rewriter.getIndexAttr(0));
+        high.push_back(rewriter.getIndexAttr(resultShape - inputShape));
+        coeffValue = b.create<tensor::PadOp>(
+            resultTensorTy, coeffValue, low, high,
+            b.create<arith::ConstantOp>(rewriter.getIntegerAttr(resultEltTy, 0)),
+            /*nofold=*/false);
+      }
+  
+      rewriter.replaceOp(op, coeffValue);
+      return success();
+    }
+};
+
+struct ConvertToTensor : public OpConversionPattern<ToTensorOp> {
+    ConvertToTensor(mlir::MLIRContext *context)
+        : OpConversionPattern<ToTensorOp>(context) {}
+  
+    using OpConversionPattern::OpConversionPattern;
+  
+    LogicalResult matchAndRewrite(
+        ToTensorOp op, OpAdaptor adaptor,
+        ConversionPatternRewriter &rewriter) const override {
+      rewriter.replaceOp(op, adaptor.getInput());
+      return success();
+    }
+};
+
 struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
     using Poly10xToStandardBase::Poly10xToStandardBase;
 
@@ -92,8 +143,7 @@ struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
 
         RewritePatternSet patterns(context);
         Poly10xToStandardTypeConverter typeConverter(context);
-        patterns.add<ConvertAdd>(typeConverter, context);
-        patterns.add<ConvertSub>(typeConverter, context);
+        patterns.add<ConvertAdd, ConvertSub, ConvertFromTensor, ConvertToTensor>(typeConverter, context);
 
         populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(
             patterns, typeConverter);
