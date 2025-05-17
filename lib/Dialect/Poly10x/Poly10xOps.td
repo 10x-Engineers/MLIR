@@ -61,4 +61,11 @@ def Poly10x_EvalOp : Op<Poly10x_Dialect, "eval"> {
   let hasVerifier = 1;
 }
 
+def Poly10x_ToTensorOp : Op<Poly10x_Dialect, "to_tensor", [Pure]> {
+  let summary = "Converts a polynomial to a tensor of its integer coefficients.";
+  let arguments = (ins Polynomial:$input);
+  let results = (outs TensorOf<[AnyInteger]>:$output);
+  let assemblyFormat = "$input attr-dict `:` qualified(type($input)) `->` type($output)";
+}
+
 #endif  // LIB_DIALECT_POLY_POLY10XOPS_TD_
