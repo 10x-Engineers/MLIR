@@ -6,6 +6,8 @@
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Transforms/DialectConversion.h"
 
+#include "mlir/Dialect/Func/IR/FuncOps.h"
+#include "mlir/Dialect/Func/Transforms/FuncConversions.h"
 namespace mlir {
 namespace dummy {
 namespace poly10x {
@@ -74,6 +76,29 @@ struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
         RewritePatternSet patterns(context);
         Poly10xToStandardTypeConverter typeConverter(context);
         patterns.add<ConvertAdd>(typeConverter, context);
+
+        populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(
+            patterns, typeConverter);
+        target.addDynamicallyLegalOp<func::FuncOp>([&](func::FuncOp op) {
+          return typeConverter.isSignatureLegal(op.getFunctionType()) &&
+                 typeConverter.isLegal(&op.getBody());
+        });
+    
+        populateReturnOpTypeConversionPattern(patterns, typeConverter);
+        target.addDynamicallyLegalOp<func::ReturnOp>(
+            [&](func::ReturnOp op) { return typeConverter.isLegal(op); });
+    
+        populateCallOpTypeConversionPattern(patterns, typeConverter);
+        target.addDynamicallyLegalOp<func::CallOp>(
+            [&](func::CallOp op) { return typeConverter.isLegal(op); });
+    
+        populateBranchOpInterfaceTypeConversionPattern(patterns, typeConverter);
+        target.markUnknownOpDynamicallyLegal([&](Operation *op) {
+          return isNotBranchOpInterfaceOrReturnLikeOp(op) ||
+                 isLegalForBranchOpInterfaceTypeConversionPattern(op,
+                                                                  typeConverter) ||
+                 isLegalForReturnOpTypeConversionPattern(op, typeConverter);
+        });
 
         // a partial conversion will legalize as many operations to the target
         // as possible, but will allow pre-existing operations that were not
