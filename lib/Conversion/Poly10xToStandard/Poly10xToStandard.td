@@ -15,7 +15,7 @@ def Poly10xToStandard : Pass<"poly10x-to-standard"> {
         "mlir::arith::ArithDialect",
         "mlir::dummy::poly10x::Poly10xDialect",
         "mlir::tensor::TensorDialect",
-        "mlir::scf::SCFDialect",
+        "mlir::scf::SCFDialect"
     ];
 }
 

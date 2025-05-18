@@ -119,6 +119,24 @@ struct ConvertFromTensor : public OpConversionPattern<FromTensorOp> {
     }
 };
 
+struct ConvertConstant : public OpConversionPattern<ConstantOp> {
+    ConvertConstant(mlir::MLIRContext *context)
+        : OpConversionPattern<ConstantOp>(context) {}
+
+    using OpConversionPattern::OpConversionPattern;
+
+    LogicalResult
+    matchAndRewrite(ConstantOp op, OpAdaptor adaptor,
+                    ConversionPatternRewriter &rewriter) const override {
+        ImplicitLocOpBuilder b(op.getLoc(), rewriter);
+        auto constOp = b.create<arith::ConstantOp>(adaptor.getCoefficients());
+        auto fromTensorOp =
+            b.create<FromTensorOp>(op.getResult().getType(), constOp);
+        rewriter.replaceOp(op, fromTensorOp.getResult());
+        return success();
+    }
+};
+
 struct ConvertToTensor : public OpConversionPattern<ToTensorOp> {
     ConvertToTensor(mlir::MLIRContext *context)
         : OpConversionPattern<ToTensorOp>(context) {}
@@ -222,7 +240,7 @@ struct Poly10xToStandard : impl::Poly10xToStandardBase<Poly10xToStandard> {
         RewritePatternSet patterns(context);
         Poly10xToStandardTypeConverter typeConverter(context);
         patterns.add<ConvertAdd, ConvertSub, ConvertFromTensor, ConvertToTensor,
-                     ConvertMul>(typeConverter, context);
+                     ConvertMul, ConvertConstant>(typeConverter, context);
 
         populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(
             patterns, typeConverter);
