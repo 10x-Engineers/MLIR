@@ -77,3 +77,22 @@ func.func @test_lower_add_and_fold() {
   %2 = poly10x.add %0, %1 : (!poly10x.poly<10>, !poly10x.poly<10>) -> !poly10x.poly<10>
   return
 }
+
+// CHECK-LABEL: test_lower_eval
+// CHECK-SAME:  (%[[poly:.*]]: [[T:tensor<10xi32>]], %[[point:.*]]: i32) -> i32 {
+// CHECK:    %[[c1:.*]] = arith.constant 1 : index
+// CHECK:    %[[c11:.*]] = arith.constant 11 : index
+// CHECK:    %[[accum:.*]] = arith.constant 0 : i32
+// CHECK:    %[[loop:.*]] = scf.for %[[iv:.*]] = %[[c1]] to %[[c11]] step %[[c1]] iter_args(%[[iter_arg:.*]] = %[[accum]]) -> (i32) {
+// CHECK:        %[[coeffIndex:.*]] = arith.subi %c11, %[[iv]]
+// CHECK:        %[[mulOp:.*]] = arith.muli %[[point]], %[[iter_arg]]
+// CHECK:        %[[nextCoeff:.*]] = tensor.extract %[[poly]][%[[coeffIndex]]]
+// CHECK:        %[[next:.*]] = arith.addi %[[mulOp]], %[[nextCoeff]]
+// CHECK:        scf.yield %[[next]]
+// CHECK:    }
+// CHECK:    return %[[loop]]
+// CHECK:  }
+func.func @test_lower_eval(%0 : !poly10x.poly<10>, %1 : i32) -> i32 {
+  %2 = poly10x.eval %0, %1: (!poly10x.poly<10>, i32) -> i32
+  return %2 : i32
+}
