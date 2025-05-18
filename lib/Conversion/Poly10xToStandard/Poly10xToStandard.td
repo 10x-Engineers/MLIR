@@ -14,7 +14,8 @@ def Poly10xToStandard : Pass<"poly10x-to-standard"> {
     let dependentDialects = [
         "mlir::arith::ArithDialect",
         "mlir::dummy::poly10x::Poly10xDialect",
-        "mlir::tensor::TensorDialect"
+        "mlir::tensor::TensorDialect",
+        "mlir::scf::SCFDialect",
     ];
 }
 
