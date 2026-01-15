@@ -3,6 +3,7 @@
 ## Build MLIR
 ```bash
 git clone https://github.com/llvm/llvm-project.git
+git checkout 9f688117271e95808342e9609c5cb377604f1278
 
 cd llvm-project
 mkdir build && cd build
