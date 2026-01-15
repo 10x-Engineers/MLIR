@@ -13,6 +13,8 @@ set (LIBS
     MLIROptLib
     MLIRPass
     MLIRPoly10xToStandard
+    MLIRRegisterAllDialects
+    MLIRRegisterAllPasses
 )
 
 # Macro defined in AddLLVM.cmake file
