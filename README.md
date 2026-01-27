@@ -1,5 +1,5 @@
 # MLIR
-
+This tutorial is supposed to be done while reading the articles mentioned here: https://github.com/j2kun/mlir-tutorial?tab=readme-ov-file#articles. Each PR in this repo implements some part of those articles. One can look at the original repository and even follow that as most of this is implemented from there. Purpose of this tutorial is to get one familiarized with how to set up a project that uses MLIR and what are general MLIR concepts like Dialects, Operations, and most important of all progressive lowering.
 ## Build MLIR
 ```bash
 git clone https://github.com/llvm/llvm-project.git
