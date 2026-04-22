@@ -19,6 +19,8 @@ cmake -G Ninja ../llvm              \
     -DCMAKE_CXX_COMPILER=clang++    \
     -DLLVM_ENABLE_LLD=ON            \
     -DLLVM_CCACHE_BUILD=ON          \
+
+cmake --build .
 ```
 > **Note:** Further Instructions to build MLIR can be found [here](https://mlir.llvm.org/getting_started/)
 
